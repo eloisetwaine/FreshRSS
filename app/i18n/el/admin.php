@@ -14,13 +14,13 @@ return array(
 	'auth' => array(
 		'allow_anonymous' => 'Allow anonymous reading of the default user’s articles (%s)',	// TODO
 		'allow_anonymous_refresh' => 'Allow anonymous refresh of the articles',	// TODO
-		'api_enabled' => 'Allow <abbr>API</abbr> access <small>(required for mobile apps)</small>',	// TODO
+		'api_enabled' => 'Allow <abbr>API</abbr> access <small>(required for mobile apps and sharing user queries)</small>',	// TODO
 		'form' => 'Web form (σύνηθες, απαιτεί JavaScript)',
 		'http' => 'HTTP (για έμπειρους χρήστες με )',
 		'none' => 'Καμία (ριψοκίνδυνο)',
 		'title' => 'Πιστοποίηση',
-		'token' => 'Διακριτικό Πιστοποίησης (token)',
-		'token_help' => 'Επιτρέπει την πρόσβαση στα RSS αποτελέσματα του προεπιλεγμένου χρήστη χωρίς έλεγχο ταυτότητας:',
+		'token' => 'Master authentication token',	// TODO
+		'token_help' => 'Allows access to all RSS outputs of the user as well as refreshing feeds without authentication:',	// TODO
 		'type' => 'Μέθοδος Πιστοποίησης',
 		'unsafe_autologin' => 'Επιτρέψτε την μη ασφαλή αυτόματη σύνδεση με την χρήση της μορφής: ',
 	),
@@ -116,6 +116,7 @@ return array(
 		'description' => 'Περιγραφή',
 		'disabled' => 'Απενεργοποιημένες',
 		'empty_list' => 'Δεν υπάρχουν εγκατεστημένες επεκτάσεις',
+		'empty_list_help' => 'Check the logs to determine the reason behind the empty extension list.',	// TODO
 		'enabled' => 'Ενεργοποιημένες',
 		'latest' => 'Εγκατεστημένες',
 		'name' => 'Όνομα',
@@ -193,6 +194,9 @@ return array(
 			'enabled' => '<a href="./?a=tos">is enabled</a>',	// TODO
 			'help' => 'How to <a href="https://freshrss.github.io/FreshRSS/en/admins/12_User_management.html#enable-terms-of-service-tos" target="_blank">enable the Terms of Service</a>',	// TODO
 		),
+		'websub' => array(
+			'help' => 'About <a href="https://freshrss.github.io/FreshRSS/en/users/WebSub.html" target="_blank">WebSub</a>',	// TODO
+		),
 	),
 	'update' => array(
 		'_' => 'Ενημέρωση συστήματος',
@@ -210,7 +214,7 @@ return array(
 			'latest' => 'Stable release (“latest”)',	// TODO
 		),
 		'title' => 'Ενημέρωση συστήματος',
-		'viaGit' => 'Update via git and Github.com started',	// TODO
+		'viaGit' => 'Update via git and GitHub.com started',	// TODO
 	),
 	'user' => array(
 		'admin' => 'Διαχειριστής',

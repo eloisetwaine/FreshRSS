@@ -1,16 +1,13 @@
 <?php
+declare(strict_types=1);
 
 class I18nData {
 
+	/** @var string */
 	public const REFERENCE_LANGUAGE = 'en';
 
-	/** @var array<string,array<string,array<string,I18nValue>>> */
-	private $data;
-
 	/** @param array<string,array<string,array<string,I18nValue>>> $data */
-	public function __construct(array $data) {
-		$this->data = $data;
-
+	public function __construct(private array $data) {
 		$this->addMissingKeysFromReference();
 		$this->removeExtraKeysFromOtherLanguages();
 		$this->processValueStates();
@@ -78,30 +75,28 @@ class I18nData {
 
 	/**
 	 * Return the available languages
-	 * @return array<string>
+	 * @return list<string>
 	 */
 	public function getAvailableLanguages(): array {
 		$languages = array_keys($this->data);
 		sort($languages);
-
 		return $languages;
 	}
 
 	/**
 	 * Return all available languages without the reference language
-	 * @return array<string>
+	 * @return list<string>
 	 */
 	private function getNonReferenceLanguages(): array {
-		return array_filter(array_keys($this->data), static function (string $value) {
-			return static::REFERENCE_LANGUAGE !== $value;
-		});
+		return array_values(array_filter(array_keys($this->data),
+			static fn(string $value) => static::REFERENCE_LANGUAGE !== $value));
 	}
 
 	/**
 	 * Add a new language. It’s a copy of the reference language.
 	 * @throws Exception
 	 */
-	public function addLanguage(string $language, string $reference = null): void {
+	public function addLanguage(string $language, ?string $reference = null): void {
 		if (array_key_exists($language, $this->data)) {
 			throw new Exception('The selected language already exist.');
 		}
@@ -134,7 +129,7 @@ class I18nData {
 	 * Return the siblings for a specified key.
 	 * To get the siblings, we need to find all matches with the parent.
 	 *
-	 * @return array<string>
+	 * @return list<string>
 	 */
 	private function getSiblings(string $key): array {
 		if (!array_key_exists($this->getFilenamePrefix($key), $this->data[static::REFERENCE_LANGUAGE])) {
@@ -144,9 +139,7 @@ class I18nData {
 		$keys = array_keys($this->data[static::REFERENCE_LANGUAGE][$this->getFilenamePrefix($key)]);
 		$parent = $this->getParentKey($key);
 
-		return array_values(array_filter($keys, static function (string $element) use ($parent) {
-			return false !== strpos($element, $parent);
-		}));
+		return array_values(array_filter($keys, static fn(string $element) => str_contains($element, $parent)));
 	}
 
 	/**
@@ -187,7 +180,7 @@ class I18nData {
 			if ($element === $key) {
 				return false;
 			}
-			return false !== strpos($element, $key);
+			return str_contains($element, $key);
 		}));
 
 		return count($children) !== 0;
@@ -287,27 +280,27 @@ class I18nData {
 	}
 
 	/**
-	 * Ignore a key from a language, or reverse it.
+	 * Ignore a key from a language, or revert an existing ignore on a key.
 	 */
-	public function ignore(string $key, string $language, bool $reverse = false): void {
+	public function ignore(string $key, string $language, bool $revert = false): void {
 		$value = $this->data[$language][$this->getFilenamePrefix($key)][$key];
-		if ($reverse) {
-			$value->markAsIgnore();
-		} else {
+		if ($revert) {
 			$value->unmarkAsIgnore();
+		} else {
+			$value->markAsIgnore();
 		}
 	}
 
 	/**
-	 * Ignore all unmodified keys from a language, or reverse it.
+	 * Ignore all unmodified keys from a language, or revert all existing ignores on unmodified keys.
 	 */
-	public function ignore_unmodified(string $language, bool $reverse = false): void {
+	public function ignore_unmodified(string $language, bool $revert = false): void {
 		$my_language = $this->getLanguage($language);
 		foreach ($this->getReferenceLanguage() as $file => $ref_language) {
 			foreach ($ref_language as $key => $ref_value) {
 				if (array_key_exists($key, $my_language[$file])) {
 					if ($ref_value->equal($my_language[$file][$key])) {
-						$this->ignore($key, $language, $reverse);
+						$this->ignore($key, $language, $revert);
 					}
 				}
 			}
@@ -329,7 +322,7 @@ class I18nData {
 	}
 
 	private function getFilenamePrefix(string $key): string {
-		return preg_replace('/\..*/', '.php', $key);
+		return preg_replace('/\..*/', '.php', $key) ?? '';
 	}
 
 }
