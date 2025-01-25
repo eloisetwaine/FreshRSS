@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * An extension manager to load extensions present in CORE_EXTENSIONS_PATH and THIRDPARTY_EXTENSIONS_PATH.
@@ -6,91 +7,98 @@
  * @todo see coding style for methods!!
  */
 final class Minz_ExtensionManager {
-	/** @var string */
-	private static $ext_metaname = 'metadata.json';
-	/** @var string */
-	private static $ext_entry_point = 'extension.php';
+
+	private static string $ext_metaname = 'metadata.json';
+	private static string $ext_entry_point = 'extension.php';
 	/** @var array<string,Minz_Extension> */
-	private static $ext_list = array();
+	private static array $ext_list = [];
 	/** @var array<string,Minz_Extension> */
-	private static $ext_list_enabled = array();
+	private static array $ext_list_enabled = [];
 	/** @var array<string,bool> */
-	private static $ext_auto_enabled = array();
+	private static array $ext_auto_enabled = [];
 
 	/**
 	 * List of available hooks. Please keep this list sorted.
 	 * @var array<string,array{'list':array<callable>,'signature':'NoneToNone'|'NoneToString'|'OneToOne'|'PassArguments'}>
 	 */
-	private static $hook_list = array(
-		'check_url_before_add' => array(	// function($url) -> Url | null
-			'list' => array(),
+	private static array $hook_list = [
+		'check_url_before_add' => [	// function($url) -> Url | null
+			'list' => [],
 			'signature' => 'OneToOne',
-		),
-		'entry_auto_read' => array(	// function(FreshRSS_Entry $entry, string $why): void
-			'list' => array(),
+		],
+		'entries_favorite' => [	// function(array $ids, bool $is_favorite): void
+			'list' => [],
 			'signature' => 'PassArguments',
-		),
-		'entry_auto_unread' => array(	// function(FreshRSS_Entry $entry, string $why): void
-			'list' => array(),
+		],
+		'entry_auto_read' => [	// function(FreshRSS_Entry $entry, string $why): void
+			'list' => [],
 			'signature' => 'PassArguments',
-		),
-		'entry_before_display' => array(	// function($entry) -> Entry | null
-			'list' => array(),
-			'signature' => 'OneToOne',
-		),
-		'entry_before_insert' => array(	// function($entry) -> Entry | null
-			'list' => array(),
-			'signature' => 'OneToOne',
-		),
-		'feed_before_actualize' => array(	// function($feed) -> Feed | null
-			'list' => array(),
-			'signature' => 'OneToOne',
-		),
-		'feed_before_insert' => array(	// function($feed) -> Feed | null
-			'list' => array(),
-			'signature' => 'OneToOne',
-		),
-		'freshrss_init' => array(	// function() -> none
-			'list' => array(),
-			'signature' => 'NoneToNone',
-		),
-		'freshrss_user_maintenance' => array(	// function() -> none
-			'list' => array(),
-			'signature' => 'NoneToNone',
-		),
-		'js_vars' => array(	// function($vars = array) -> array | null
-			'list' => array(),
-			'signature' => 'OneToOne',
-		),
-		'menu_admin_entry' => array(	// function() -> string
-			'list' => array(),
-			'signature' => 'NoneToString',
-		),
-		'menu_configuration_entry' => array(	// function() -> string
-			'list' => array(),
-			'signature' => 'NoneToString',
-		),
-		'menu_other_entry' => array(	// function() -> string
-			'list' => array(),
-			'signature' => 'NoneToString',
-		),
-		'nav_menu' => array(	// function() -> string
-			'list' => array(),
-			'signature' => 'NoneToString',
-		),
-		'nav_reading_modes' => array(	// function($readingModes = array) -> array | null
-			'list' => array(),
-			'signature' => 'OneToOne',
-		),
-		'post_update' => array(	// function(none) -> none
-			'list' => array(),
-			'signature' => 'NoneToNone',
-		),
-		'simplepie_before_init' => array(	// function($simplePie, $feed) -> none
-			'list' => array(),
+		],
+		'entry_auto_unread' => [	// function(FreshRSS_Entry $entry, string $why): void
+			'list' => [],
 			'signature' => 'PassArguments',
-		),
-	);
+		],
+		'entry_before_display' => [	// function($entry) -> Entry | null
+			'list' => [],
+			'signature' => 'OneToOne',
+		],
+		'entry_before_insert' => [	// function($entry) -> Entry | null
+			'list' => [],
+			'signature' => 'OneToOne',
+		],
+		'feed_before_actualize' => [	// function($feed) -> Feed | null
+			'list' => [],
+			'signature' => 'OneToOne',
+		],
+		'feed_before_insert' => [	// function($feed) -> Feed | null
+			'list' => [],
+			'signature' => 'OneToOne',
+		],
+		'freshrss_init' => [	// function() -> none
+			'list' => [],
+			'signature' => 'NoneToNone',
+		],
+		'freshrss_user_maintenance' => [	// function() -> none
+			'list' => [],
+			'signature' => 'NoneToNone',
+		],
+		'js_vars' => [	// function($vars = array) -> array | null
+			'list' => [],
+			'signature' => 'OneToOne',
+		],
+		'menu_admin_entry' => [	// function() -> string
+			'list' => [],
+			'signature' => 'NoneToString',
+		],
+		'menu_configuration_entry' => [	// function() -> string
+			'list' => [],
+			'signature' => 'NoneToString',
+		],
+		'menu_other_entry' => [	// function() -> string
+			'list' => [],
+			'signature' => 'NoneToString',
+		],
+		'nav_menu' => [	// function() -> string
+			'list' => [],
+			'signature' => 'NoneToString',
+		],
+		'nav_reading_modes' => [	// function($readingModes = array) -> array | null
+			'list' => [],
+			'signature' => 'OneToOne',
+		],
+		'post_update' => [	// function(none) -> none
+			'list' => [],
+			'signature' => 'NoneToNone',
+		],
+		'simplepie_after_init' => [	// function(\SimplePie\SimplePie $simplePie, FreshRSS_Feed $feed, bool $result): void
+			'list' => [],
+			'signature' => 'PassArguments',
+		],
+		'simplepie_before_init' => [	// function(\SimplePie\SimplePie $simplePie, FreshRSS_Feed $feed): void
+			'list' => [],
+			'signature' => 'PassArguments',
+		],
+	];
 
 	/** Remove extensions and hooks from a previous initialisation */
 	private static function reset(): void {
@@ -118,6 +126,7 @@ final class Minz_ExtensionManager {
 	 * extension.php should contain at least a class named <name>Extension where
 	 * <name> must match with the entry point in metadata.json. This class must
 	 * inherit from Minz_Extension class.
+	 * @throws Minz_ConfigurationNamespaceException
 	 */
 	public static function init(): void {
 		self::reset();
@@ -127,7 +136,6 @@ final class Minz_ExtensionManager {
 		array_walk($list_core_extensions, function (&$s) { $s = CORE_EXTENSIONS_PATH . '/' . $s; });
 		array_walk($list_thirdparty_extensions, function (&$s) { $s = THIRDPARTY_EXTENSIONS_PATH . '/' . $s; });
 
-		/** @var array<string> */
 		$list_potential_extensions = array_merge($list_core_extensions, $list_thirdparty_extensions);
 
 		$system_conf = Minz_Configuration::get('system');
@@ -147,7 +155,7 @@ final class Minz_ExtensionManager {
 			$meta_raw_content = file_get_contents($metadata_filename) ?: '';
 			/** @var array{'name':string,'entrypoint':string,'path':string,'author'?:string,'description'?:string,'version'?:string,'type'?:'system'|'user'}|null $meta_json */
 			$meta_json = json_decode($meta_raw_content, true);
-			if (!$meta_json || !self::isValidMetadata($meta_json)) {
+			if (!is_array($meta_json) || !self::isValidMetadata($meta_json)) {
 				// metadata.json is not a json file? Invalid!
 				// or metadata.json is invalid (no required information), invalid!
 				Minz_Log::warning('`' . $metadata_filename . '` is not a valid metadata file');
@@ -178,7 +186,7 @@ final class Minz_ExtensionManager {
 	 * @return bool true if the array is valid, false else.
 	 */
 	private static function isValidMetadata(array $meta): bool {
-		$valid_chars = array('_');
+		$valid_chars = ['_'];
 		return !(empty($meta['name']) || empty($meta['entrypoint']) || !ctype_alnum(str_replace($valid_chars, '', $meta['entrypoint'])));
 	}
 
@@ -275,7 +283,7 @@ final class Minz_ExtensionManager {
 			return;
 		}
 		foreach ($ext_list as $ext_name => $ext_status) {
-			if ($ext_status) {
+			if ($ext_status && is_string($ext_name)) {
 				self::enable($ext_name, $onlyOfType);
 			}
 		}
@@ -347,9 +355,9 @@ final class Minz_ExtensionManager {
 				call_user_func($function, ...$args);
 			}
 		} elseif ($signature === 'NoneToString') {
-			return self::callNoneToString($hook_name);
+			return self::callHookString($hook_name);
 		} elseif ($signature === 'NoneToNone') {
-			self::callNoneToNone($hook_name);
+			self::callHookVoid($hook_name);
 		}
 		return;
 	}
@@ -368,7 +376,7 @@ final class Minz_ExtensionManager {
 	 * @return mixed|null final chained result of the hooks. If nothing is changed,
 	 *         the initial argument is returned.
 	 */
-	private static function callOneToOne(string $hook_name, $arg) {
+	private static function callOneToOne(string $hook_name, mixed $arg): mixed {
 		$result = $arg;
 		foreach (self::$hook_list[$hook_name]['list'] as $function) {
 			$result = call_user_func($function, $arg);
@@ -391,10 +399,13 @@ final class Minz_ExtensionManager {
 	 * @param string $hook_name is the hook to call.
 	 * @return string concatenated result of the call to all the hooks.
 	 */
-	private static function callNoneToString(string $hook_name): string {
+	public static function callHookString(string $hook_name): string {
 		$result = '';
-		foreach (self::$hook_list[$hook_name]['list'] as $function) {
-			$result = $result . call_user_func($function);
+		foreach (self::$hook_list[$hook_name]['list'] ?? [] as $function) {
+			$return = call_user_func($function);
+			if (is_scalar($return)) {
+				$result .= $return;
+			}
 		}
 		return $result;
 	}
@@ -407,8 +418,8 @@ final class Minz_ExtensionManager {
 	 *
 	 * @param string $hook_name is the hook to call.
 	 */
-	private static function callNoneToNone(string $hook_name): void {
-		foreach (self::$hook_list[$hook_name]['list'] as $function) {
+	public static function callHookVoid(string $hook_name): void {
+		foreach (self::$hook_list[$hook_name]['list'] ?? [] as $function) {
 			call_user_func($function);
 		}
 	}
