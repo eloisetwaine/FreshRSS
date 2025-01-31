@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 FreshRSS_SystemConfiguration::register('default_system', join_path(FRESHRSS_PATH, 'config.default.php'));
 FreshRSS_UserConfiguration::register('default_user', join_path(FRESHRSS_PATH, 'config-user.default.php'));
@@ -46,7 +47,7 @@ function checkRequirements(string $dbType = ''): array {
 	$users = is_dir(USERS_PATH) && touch(USERS_PATH . '/index.html');
 	$favicons = is_dir(DATA_PATH) && touch(DATA_PATH . '/favicons/index.html');
 
-	return array(
+	return [
 		'php' => $php ? 'ok' : 'ko',
 		'curl' => $curl ? 'ok' : 'ko',
 		'pdo-mysql' => $pdo_mysql ? 'ok' : 'ko',
@@ -67,22 +68,24 @@ function checkRequirements(string $dbType = ''): array {
 		'favicons' => $favicons ? 'ok' : 'ko',
 		'message' => $message ?: '',
 		'all' => $php && $curl && $pdo && $pcre && $ctype && $dom && $xml &&
-			$data && $cache && $tmp && $users && $favicons && $message == '' ? 'ok' : 'ko'
-	);
+			$data && $cache && $tmp && $users && $favicons && $message == '' ? 'ok' : 'ko',
+	];
 }
 
 function generateSalt(): string {
-	return sha1(uniqid('' . mt_rand(), true).implode('', stat(__FILE__) ?: []));
+	return sha1(uniqid('' . mt_rand(), true) . implode('', stat(__FILE__) ?: []));
 }
 
+/**
+ * @throws FreshRSS_Context_Exception
+ */
 function initDb(): string {
-	$conf = FreshRSS_Context::$system_conf;
-	$db = $conf->db;
+	$db = FreshRSS_Context::systemConf()->db;
 	if (empty($db['pdo_options'])) {
 		$db['pdo_options'] = [];
 	}
 	$db['pdo_options'][PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-	$conf->db = $db;	//TODO: Remove this Minz limitation "Indirect modification of overloaded property"
+	FreshRSS_Context::systemConf()->db = $db;	//TODO: Remove this Minz limitation "Indirect modification of overloaded property"
 
 	if (empty($db['type'])) {
 		$db['type'] = 'sqlite';
@@ -94,7 +97,7 @@ function initDb(): string {
 		$dbBase = $db['base'] ?? '';
 		//For first connection, use default database for PostgreSQL, empty database for MySQL / MariaDB:
 		$db['base'] = $db['type'] === 'pgsql' ? 'postgres' : '';
-		$conf->db = $db;
+		FreshRSS_Context::systemConf()->db = $db;
 		try {
 			//First connection without database name to create the database
 			$databaseDAO = FreshRSS_Factory::createDatabaseDAO();
@@ -103,7 +106,7 @@ function initDb(): string {
 		}
 		//Restore final database parameters for auto-creation and for future connections
 		$db['base'] = $dbBase;
-		$conf->db = $db;
+		FreshRSS_Context::systemConf()->db = $db;
 		if ($databaseDAO != null) {
 			//Perform database auto-creation
 			$databaseDAO->create();

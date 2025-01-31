@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * The Minz_Migrator helps to migrate data (in a database or not) or the
@@ -9,17 +10,14 @@
  */
 class Minz_Migrator
 {
-	/** @var string[] */
-	private $applied_versions;
+	/** @var array<string> */
+	private array $applied_versions;
 
 	/** @var array<callable> */
-	private $migrations = [];
+	private array $migrations = [];
 
 	/**
 	 * Execute a list of migrations, skipping versions indicated in a file
-	 *
-	 * @param string $migrations_path
-	 * @param string $applied_migrations_path
 	 *
 	 * @return true|string Returns true if execute succeeds to apply
 	 *                        migrations, or a string if it fails.
@@ -30,7 +28,7 @@ class Minz_Migrator
 	 *
 	 * @throws BadFunctionCallException if a callback isn’t callable.
 	 */
-	public static function execute(string $migrations_path, string $applied_migrations_path) {
+	public static function execute(string $migrations_path, string $applied_migrations_path): string|bool {
 		$applied_migrations = @file_get_contents($applied_migrations_path);
 		if ($applied_migrations === false) {
 			return "Cannot open the {$applied_migrations_path} file";
@@ -178,6 +176,7 @@ class Minz_Migrator
 	public function migrations(): array {
 		$migrations = $this->migrations;
 		uksort($migrations, 'strnatcmp');
+		/** @var array<string,callable> $migrations */
 		return $migrations;
 	}
 
@@ -239,7 +238,7 @@ class Minz_Migrator
 	 * considered as successful. It is considered as good practice to return
 	 * true on success though.
 	 *
-	 * @return array<string|bool> Return the results of each executed migration. If an
+	 * @return array<string,bool|string> Return the results of each executed migration. If an
 	 *               exception was raised in a migration, its result is set to
 	 *               the exception message.
 	 */
@@ -253,7 +252,7 @@ class Minz_Migrator
 
 			try {
 				$migration_result = $callback();
-				$result[$version] = $migration_result;
+				$result[$version] = (bool)$migration_result;
 			} catch (Exception $e) {
 				$migration_result = false;
 				$result[$version] = $e->getMessage();

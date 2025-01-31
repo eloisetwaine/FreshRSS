@@ -14,13 +14,13 @@ return array(
 	'auth' => array(
 		'allow_anonymous' => 'Autorizar la lectura anonima dels articles de l’utilizaire per defaut (%s)',
 		'allow_anonymous_refresh' => 'Autorizar l’actualizacion anonime dels fluxes',
-		'api_enabled' => 'Autorizar l’accès per <abbr>API</abbr><small>(necessari per las aplicacions mobil)</small>',
+		'api_enabled' => 'Autorizar l’accès per <abbr>API</abbr><small>(necessari per las aplicacions mobil and sharing user queries)</small>',	// DIRTY
 		'form' => 'Formulari (tradicional, demanda JavaScript)',
-		'http' => 'HTTP (per utilizaires avançats amb HTTPS)',
+		'http' => 'HTTP (advanced: managed by Web server, OIDC, SSO…)',	// TODO
 		'none' => 'Cap (perilhós)',
 		'title' => 'Autentificacion',
-		'token' => 'Geton d’autentificacion',
-		'token_help' => 'Permetre l’accès a la sortida RSS de l’utilizaire per defaut sens cap d’autentificacion :',
+		'token' => 'Master authentication token',	// TODO
+		'token_help' => 'Allows access to all RSS outputs of the user as well as refreshing feeds without authentication:',	// TODO
 		'type' => 'Mòde d’autentification',
 		'unsafe_autologin' => 'Autorizar las connexions automaticas pas seguras al format : ',
 	),
@@ -116,6 +116,7 @@ return array(
 		'description' => 'Descripcion',
 		'disabled' => 'Desactivada',
 		'empty_list' => 'Cap d’extensions pas installadas',
+		'empty_list_help' => 'Check the logs to determine the reason behind the empty extension list.',	// TODO
 		'enabled' => 'Activada',
 		'latest' => 'Installada',
 		'name' => 'Nom',
@@ -147,8 +148,9 @@ return array(
 		'main_stream' => 'Flux màger',
 		'no_idle' => 'I a pas cap d’article inactiu !',
 		'number_entries' => '%d articles',	// IGNORE
+		'overview' => 'Overview',	// TODO
 		'percent_of_total' => '% del total',
-		'repartition' => 'Reparticion dels articles',
+		'repartition' => 'Reparticion dels articles: %s',
 		'status_favorites' => 'Favorits',
 		'status_read' => 'Legit',
 		'status_total' => 'Total',	// IGNORE
@@ -193,6 +195,9 @@ return array(
 			'enabled' => '<a href="./?a=tos">is enabled</a>',	// TODO
 			'help' => 'How to <a href="https://freshrss.github.io/FreshRSS/en/admins/12_User_management.html#enable-terms-of-service-tos" target="_blank">enable the Terms of Service</a>',	// TODO
 		),
+		'websub' => array(
+			'help' => 'About <a href="https://freshrss.github.io/FreshRSS/en/users/WebSub.html" target="_blank">WebSub</a>',	// TODO
+		),
 	),
 	'update' => array(
 		'_' => 'Sistèma de mesa a jorn',
@@ -210,7 +215,7 @@ return array(
 			'latest' => 'Stable release (“latest”)',	// TODO
 		),
 		'title' => 'Sistèma de mesa a jorn',
-		'viaGit' => 'Update via git and Github.com started',	// TODO
+		'viaGit' => 'Update via git and GitHub.com started',	// TODO
 	),
 	'user' => array(
 		'admin' => 'Administrator',	// IGNORE

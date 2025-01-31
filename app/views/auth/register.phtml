@@ -1,4 +1,7 @@
-<?php /** @var FreshRSS_View $this */ ?>
+<?php
+	declare(strict_types=1);
+	/** @var FreshRSS_View $this */
+?>
 <main class="prompt">
 	<h1><?= _t('gen.auth.registration') ?></h1>
 
@@ -66,7 +69,7 @@
 		<div class="form-group form-group-actions">
 			<?php
 				$redirect_url = urlencode(Minz_Url::display(
-					array('c' => 'index', 'a' => 'index'),
+					['c' => 'index', 'a' => 'index'],
 					'php', true
 				));
 			?>

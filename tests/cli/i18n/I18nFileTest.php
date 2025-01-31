@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 require_once __DIR__ . '/../../../cli/i18n/I18nFile.php';
 
 class I18nFileTest extends PHPUnit\Framework\TestCase {
@@ -12,7 +12,7 @@ class I18nFileTest extends PHPUnit\Framework\TestCase {
 
 		$after = $this->computeFilesHash();
 
-		self::assertEquals($before, $after);
+		self::assertSame($before, $after);
 	}
 
 	/** @return array<string,string|false> */

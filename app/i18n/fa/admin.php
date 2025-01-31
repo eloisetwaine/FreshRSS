@@ -14,13 +14,13 @@ return array(
 	'auth' => array(
 		'allow_anonymous' => ' اجازه خواندن ناشناس مقالات کاربر پیش‌فرض (%s)',
 		'allow_anonymous_refresh' => ' اجازه بازخوانی ناشناس مقالات را بدهید',
-		'api_enabled' => ' اجازه دسترسی به <abbr>API</abbr> <small>(الزامی برای برنامه های تلفن همراه)</small>',
+		'api_enabled' => ' اجازه دسترسی به <abbr>API</abbr> <small>(الزامی برای برنامه های تلفن همراه and sharing user queries and sharing user queries)</small>',	// DIRTY
 		'form' => ' فرم وب (سنتی',
-		'http' => ' HTTP (برای کاربران پیشرفته با HTTPS)',
+		'http' => 'HTTP (advanced: managed by Web server, OIDC, SSO…)',	// TODO
 		'none' => ' هیچ (خطرناک)',
 		'title' => ' احراز هویت',
-		'token' => ' نشانه احراز هویت',
-		'token_help' => ' امکان دسترسی به خروجی RSS کاربر پیش فرض بدون احراز هویت را می دهد:',
+		'token' => 'Master authentication token',	// TODO
+		'token_help' => 'Allows access to all RSS outputs of the user as well as refreshing feeds without authentication:',	// TODO
 		'type' => ' روش احراز هویت',
 		'unsafe_autologin' => ' اجازه ورود خودکار ناامن را با استفاده از قالب:',
 	),
@@ -116,6 +116,7 @@ return array(
 		'description' => ' توضیحات',
 		'disabled' => ' معلول',
 		'empty_list' => ' هیچ برنامه افزودنی نصب شده ای وجود ندارد',
+		'empty_list_help' => 'Check the logs to determine the reason behind the empty extension list.',	// TODO
 		'enabled' => ' فعال است',
 		'latest' => ' نصب شده است',
 		'name' => ' نام',
@@ -147,8 +148,9 @@ return array(
 		'main_stream' => ' جریان اصلی',
 		'no_idle' => ' هیچ فید بیکار وجود ندارد!',
 		'number_entries' => ' %d مقاله',
+		'overview' => 'Overview',	// TODO
 		'percent_of_total' => ' درصد از کل',
-		'repartition' => ' تقسیم مجدد مقالات',
+		'repartition' => ' تقسیم مجدد مقالات: %s',	// DIRTY
 		'status_favorites' => ' موارد دلخواه',
 		'status_read' => ' بخوانید',
 		'status_total' => ' مجموع',
@@ -193,6 +195,9 @@ return array(
 			'enabled' => ' <a href="./?a=tos">فعال است</a>',
 			'help' => ' نحوه <a href="https://freshrss.github.io/FreshRSS/en/admins/12_User_management.html#enable-terms-of-service-tos" target="_blank">فعال کردن شرایط خدمات </a>',
 		),
+		'websub' => array(
+			'help' => 'About <a href="https://freshrss.github.io/FreshRSS/en/users/WebSub.html" target="_blank">WebSub</a>',	// TODO
+		),
 	),
 	'update' => array(
 		'_' => ' FreshRSS را به روز کنید',
@@ -210,7 +215,7 @@ return array(
 			'latest' => ' انتشار پایدار ("آخرین")',
 		),
 		'title' => ' FreshRSS را به روز کنید',
-		'viaGit' => ' به روز رسانی از طریق git و Github.com شروع شد',
+		'viaGit' => ' به روز رسانی از طریق git و GitHub.com شروع شد',
 	),
 	'user' => array(
 		'admin' => ' مدیر',

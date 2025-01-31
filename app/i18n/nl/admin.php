@@ -14,13 +14,13 @@ return array(
 	'auth' => array(
 		'allow_anonymous' => 'Sta bezoekers toe om artikelen te lezen van de standaard gebruiker (%s)',
 		'allow_anonymous_refresh' => 'Sta bezoekers toe om de artikelen te vernieuwen',
-		'api_enabled' => 'Sta <abbr>API</abbr> toegang toe <small>(nodig voor mobiele apps)</small>',
+		'api_enabled' => 'Sta <abbr>API</abbr> toegang toe <small>(nodig voor mobiele apps and sharing user queries)</small>',	// DIRTY
 		'form' => 'Web formulier (traditioneel, JavaScript vereist)',
-		'http' => 'HTTP (voor gevorderde gebruikers met HTTPS)',
+		'http' => 'HTTP (geavanceerd: beheerd door webserver, OIDC, SSO…)',
 		'none' => 'Geen (gevaarlijk)',
 		'title' => 'Authenticatie',
-		'token' => 'Authenticatie teken',
-		'token_help' => 'Sta toegang toe tot de RSS uitvoer van de standaard gebruiker zonder authenticatie:',
+		'token' => 'Hoofdauthenticatietoken',
+		'token_help' => 'Geeft toegang tot alle RSS-uitvoer van de gebruiker en kan feeds verversen zonder authenticatie:',
 		'type' => 'Authenticatie methode',
 		'unsafe_autologin' => 'Sta onveilige automatische log in toe met het volgende formaat: ',
 	),
@@ -116,6 +116,7 @@ return array(
 		'description' => 'Beschrijving',
 		'disabled' => 'Uitgeschakeld',
 		'empty_list' => 'Er zijn geïnstalleerde uitbreidingen',
+		'empty_list_help' => 'Check the logs to determine the reason behind the empty extension list.',	// TODO
 		'enabled' => 'Ingeschakeld',
 		'latest' => 'Geïnstalleerd',
 		'name' => 'Naam',
@@ -147,8 +148,9 @@ return array(
 		'main_stream' => 'Overzicht',
 		'no_idle' => 'Er is geen gepauzeerde feed!',
 		'number_entries' => '%d artikelen',
+		'overview' => 'Overview',	// TODO
 		'percent_of_total' => '% van totaal',
-		'repartition' => 'Artikelverdeling',
+		'repartition' => 'Artikelverdeling: %s',
 		'status_favorites' => 'Favorieten',
 		'status_read' => 'Gelezen',
 		'status_total' => 'Totaal',
@@ -160,8 +162,8 @@ return array(
 		'_' => 'Systeem configuratie',
 		'auto-update-url' => 'Automatische update server URL',
 		'base-url' => array(
-			'_' => 'Base URL',	// TODO
-			'recommendation' => 'Automatic recommendation: <kbd>%s</kbd>',	// TODO
+			'_' => 'Basis-url',
+			'recommendation' => 'Automatische aanbeveling: <kbd>%s</kbd>',
 		),
 		'cookie-duration' => array(
 			'help' => 'in seconden',
@@ -187,30 +189,33 @@ return array(
 			),
 			'title' => 'Gebruikersregistratieformulier',
 		),
-		'sensitive-parameter' => 'Sensitive parameter. Edit manually in <kbd>./data/config.php</kbd>',	// TODO
+		'sensitive-parameter' => 'Kwetsbare parameter. Handmatig te bewerken in <kbd>./data/config.php</kbd>',
 		'tos' => array(
-			'disabled' => 'is not given',	// TODO
-			'enabled' => '<a href="./?a=tos">is enabled</a>',	// TODO
-			'help' => 'How to <a href="https://freshrss.github.io/FreshRSS/en/admins/12_User_management.html#enable-terms-of-service-tos" target="_blank">enable the Terms of Service</a>',	// TODO
+			'disabled' => 'is niet ingegeven',
+			'enabled' => '<a href="./?a=tos">is ingeschakeld</a>',
+			'help' => 'How to <a href="https://freshrss.github.io/FreshRSS/en/admins/12_User_management.html#enable-terms-of-service-tos" target="_blank">algemene voorwaarden inschakelen</a>',
+		),
+		'websub' => array(
+			'help' => 'Over <a href="https://freshrss.github.io/FreshRSS/en/users/WebSub.html" target="_blank">WebSub</a>',
 		),
 	),
 	'update' => array(
 		'_' => 'Versie controle',
 		'apply' => 'Toepassen',
-		'changelog' => 'Changelog',	// TODO
+		'changelog' => 'Changelog',	// IGNORE
 		'check' => 'Controleer op nieuwe versies',
-		'copiedFromURL' => 'update.php copied from %s to ./data',	// TODO
+		'copiedFromURL' => 'update.php gekopieerd van %s naar ./data',
 		'current_version' => 'Uw huidige versie',
 		'last' => 'Laatste controle',
-		'loading' => 'Updating…',	// TODO
+		'loading' => 'Updaten…',
 		'none' => 'Geen nieuwe versie om toe te passen',
 		'releaseChannel' => array(
-			'_' => 'Release channel',	// TODO
-			'edge' => 'Rolling release (“edge”)',	// TODO
-			'latest' => 'Stable release (“latest”)',	// TODO
+			'_' => 'Release-kanaal',
+			'edge' => 'Rollende release (“edge”)',
+			'latest' => 'Stabiele release (“latest”)',
 		),
 		'title' => 'Vernieuw systeem',
-		'viaGit' => 'Update via git and Github.com started',	// TODO
+		'viaGit' => 'Update via git and GitHub.com gestart',
 	),
 	'user' => array(
 		'admin' => 'Beheerder',

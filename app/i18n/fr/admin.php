@@ -14,13 +14,13 @@ return array(
 	'auth' => array(
 		'allow_anonymous' => 'Autoriser la lecture anonyme des articles de l’utilisateur par défaut (%s)',
 		'allow_anonymous_refresh' => 'Autoriser le rafraîchissement anonyme des flux',
-		'api_enabled' => 'Autoriser l’accès par <abbr>API</abbr> <small>(nécessaire pour les applis mobiles)</small>',
+		'api_enabled' => 'Autoriser l’accès par <abbr>API</abbr> <small>(nécessaire pour les applications mobiles et pour partager les filtres utilisateurs)</small>',
 		'form' => 'Formulaire (traditionnel, requiert JavaScript)',
-		'http' => 'HTTP (pour utilisateurs avancés avec HTTPS)',
+		'http' => 'HTTP (avancé : contrôlé par serveur Web, OIDC, SSO…)',
 		'none' => 'Aucune (dangereux)',
 		'title' => 'Authentification',
-		'token' => 'Jeton d’identification',
-		'token_help' => 'Permet d’accéder à la sortie RSS de l’utilisateur par défaut sans besoin de s’authentifier :',
+		'token' => 'Jeton d’identification maître',
+		'token_help' => 'Permet d’accéder à toutes les sorties RSS de l’utilisateur et au rafraîchissement des flux sans besoin de s’authentifier :',
 		'type' => 'Méthode d’authentification',
 		'unsafe_autologin' => 'Autoriser les connexions automatiques non-sûres au format : ',
 	),
@@ -116,6 +116,7 @@ return array(
 		'description' => 'Description',	// IGNORE
 		'disabled' => 'Désactivée',
 		'empty_list' => 'Aucune extension installée',
+		'empty_list_help' => 'Vérifiez les logs pour déterminer pourquoi la liste des extensions est vide.',
 		'enabled' => 'Activée',
 		'latest' => 'Installée',
 		'name' => 'Nom',
@@ -147,8 +148,9 @@ return array(
 		'main_stream' => 'Flux principal',
 		'no_idle' => 'Il n’y a aucun flux inactif !',
 		'number_entries' => '%d articles',	// IGNORE
+		'overview' => 'Vue d’ensemble',
 		'percent_of_total' => '% du total',
-		'repartition' => 'Répartition des articles',
+		'repartition' => 'Répartition des articles: %s',
 		'status_favorites' => 'favoris',
 		'status_read' => 'lus',
 		'status_total' => 'total',
@@ -161,7 +163,7 @@ return array(
 		'auto-update-url' => 'URL du service de mise à jour',
 		'base-url' => array(
 			'_' => 'URL de la racine',
-			'recommendation' => 'Recommandation automatique: <kbd>%s</kbd>',
+			'recommendation' => 'Recommandation automatique : <kbd>%s</kbd>',
 		),
 		'cookie-duration' => array(
 			'help' => 'en secondes',
@@ -187,11 +189,14 @@ return array(
 			),
 			'title' => 'Formulaire d’inscription utilisateur',
 		),
-		'sensitive-parameter' => 'Paramètre sensible. Éditez manuallement <kbd>./data/config.php</kbd>',
+		'sensitive-parameter' => 'Paramètre sensible. Éditez manuellement <kbd>./data/config.php</kbd>',
 		'tos' => array(
 			'disabled' => 'non renseigné',
 			'enabled' => '<a href="./?a=tos">activées</a>',
 			'help' => 'Comment <a href="https://freshrss.github.io/FreshRSS/en/admins/12_User_management.html#enable-terms-of-service-tos" target="_blank">activer les conditions d’utilisation</a>',
+		),
+		'websub' => array(
+			'help' => 'À propos de <a href="https://freshrss.github.io/FreshRSS/fr/users/08_PubSubHubbub.html" target="_blank">WebSub</a>',
 		),
 	),
 	'update' => array(
@@ -210,7 +215,7 @@ return array(
 			'latest' => 'Publication stable (“latest”)',
 		),
 		'title' => 'Système de mise à jour',
-		'viaGit' => 'Mise à jour via git et Github.com démarrée',
+		'viaGit' => 'Mise à jour via git et GitHub.com démarrée',
 	),
 	'user' => array(
 		'admin' => 'Administrateur',

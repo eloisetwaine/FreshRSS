@@ -7,7 +7,7 @@
 html, body {
 	height: 100%;
 	color: black;
-	font-family: "OpenSans", "Cantarell", "Helvetica", "Arial", "PingFang SC", "Microsoft YaHei", sans-serif;
+	font-family: "OpenSans", "Cantarell", "Helvetica", "Arial", sans-serif;
 }
 
 /*=== Links */
@@ -63,8 +63,8 @@ th, td {
 th {
 }
 
-form td,
-form th {
+.config-articleicons td,
+.config-articleicons th {
 	font-weight: normal;
 	text-align: center;
 }
@@ -126,14 +126,11 @@ form th {
 .btn {
 	margin: 0;
 	padding: 5px 10px;
-	display: inline-block;
 	min-height: 25px;
 	min-width: 15px;
 	font-size: 0.9rem;
 	line-height: 1.7;
 	vertical-align: middle;
-	cursor: pointer;
-	overflow: hidden;
 }
 
 .btn:hover {
@@ -317,18 +314,12 @@ form th {
 }
 
 .box .box-title {
-	margin: 0;
-	padding: 5px 10px;
 }
 
 .box .box-content {
-	max-height: 260px;
 }
 
 .box .box-content .item {
-	padding: 0 10px;
-	font-size: 0.9rem;
-	line-height: 2.5;
 }
 
 /*=== Tree */
@@ -558,10 +549,6 @@ form th {
 	padding: 5px;
 }
 
-.flux .item.date {
-	font-size: 0.7rem;
-}
-
 .flux:not(.current):hover .item.title {
 }
 
@@ -584,14 +571,9 @@ form th {
 }
 
 .content pre {
-	margin: 10px auto;
-	padding: 10px 20px;
-	overflow: auto;
-	font-size: 0.9rem;
 }
 
 .content code {
-	padding: 2px 5px;
 }
 
 .content pre code {
@@ -617,10 +599,10 @@ form th {
 .notification.bad {
 }
 
-.notification.good a.close:hover {
+.notification.good .close:hover {
 }
 
-.notification.bad a.close:hover {
+.notification.bad .close:hover {
 }
 
 /*=== "Load more" part */
@@ -637,10 +619,6 @@ form th {
 
 /*=== Navigation menu (for articles) */
 #nav_entries {
-	margin: 0;
-	text-align: center;
-	line-height: 3;
-	table-layout: fixed;
 }
 
 /*=== READER VIEW */
@@ -650,14 +628,9 @@ form th {
 	color: #333;
 }
 
-#stream.reader .flux .content {
+#stream.reader .flux .flux_content {
 	background-color: #fff;
 	border-color: #ddd;
-}
-
-#stream.reader .flux .author {
-	margin: 0 0 10px;
-	font-size: 90%;
 }
 
 /*=== GLOBAL VIEW */
@@ -780,16 +753,16 @@ form th {
 		margin: 0 0 3.5em;
 	}
 
-	.notification a.close {
+	.notification .close {
 		display: block;
 		left: 0;
 	}
 
-	.notification a.close:hover {
+	.notification .close:hover {
 		opacity: 0.5;
 	}
 
-	.notification a.close .icon {
+	.notification .close .icon {
 		display: none;
 	}
 }

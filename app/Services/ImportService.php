@@ -1,17 +1,17 @@
 <?php
+declare(strict_types=1);
 
 /**
  * Provide methods to import files.
  */
 class FreshRSS_Import_Service {
-	/** @var FreshRSS_CategoryDAO */
-	private $catDAO;
 
-	/** @var FreshRSS_FeedDAO */
-	private $feedDAO;
+	private readonly FreshRSS_CategoryDAO $catDAO;
 
-	/** @var bool true if success, false otherwise */
-	private $lastStatus;
+	private readonly FreshRSS_FeedDAO $feedDAO;
+
+	/** true if success, false otherwise */
+	private bool $lastStatus;
 
 	/**
 	 * Initialize the service for the given user.
@@ -50,7 +50,7 @@ class FreshRSS_Import_Service {
 
 		$this->catDAO->checkDefault();
 		$default_category = $this->catDAO->getDefault();
-		if (!$default_category) {
+		if ($default_category === null) {
 			self::log('Cannot get the default category');
 			$this->lastStatus = false;
 			return;
@@ -58,7 +58,7 @@ class FreshRSS_Import_Service {
 
 		// Get the categories by names so we can use this array to retrieve
 		// existing categories later.
-		$categories = $this->catDAO->listCategories(false) ?: [];
+		$categories = $this->catDAO->listCategories(prePopulateFeeds: false);
 		$categories_by_names = [];
 		foreach ($categories as $category) {
 			$categories_by_names[$category->name()] = $category;
@@ -68,7 +68,7 @@ class FreshRSS_Import_Service {
 		// verify the user can import its categories/feeds.
 		$nb_categories = count($categories);
 		$nb_feeds = count($this->feedDAO->listFeeds());
-		$limits = FreshRSS_Context::$system_conf->limits;
+		$limits = FreshRSS_Context::systemConf()->limits;
 
 		// Process the OPML outlines to get a list of categories and a list of
 		// feeds elements indexed by their categories names.
@@ -78,20 +78,20 @@ class FreshRSS_Import_Service {
 			$category_element = $categories_elements[$category_name] ?? null;
 
 			$category = null;
-			if ($forced_category) {
+			if ($forced_category !== null) {
 				// If the category is forced, ignore the actual category name
 				$category = $forced_category;
 			} elseif (isset($categories_by_names[$category_name])) {
 				// If the category already exists, get it from $categories_by_names
 				$category = $categories_by_names[$category_name];
-			} elseif ($category_element) {
+			} elseif (is_array($category_element)) {
 				// Otherwise, create the category (if possible)
 				$limit_reached = $nb_categories >= $limits['max_categories'];
 				$can_create_category = FreshRSS_Context::$isCli || !$limit_reached;
 
 				if ($can_create_category) {
 					$category = $this->createCategory($category_element, $dry_run);
-					if ($category) {
+					if ($category !== null) {
 						$categories_by_names[$category->name()] = $category;
 						$nb_categories++;
 					}
@@ -102,7 +102,7 @@ class FreshRSS_Import_Service {
 				}
 			}
 
-			if (!$category) {
+			if ($category === null) {
 				// Category can be null if the feeds weren't in a category
 				// outline, or if we weren't able to create the category.
 				$category = $default_category;
@@ -121,7 +121,7 @@ class FreshRSS_Import_Service {
 					break;
 				}
 
-				if ($this->createFeed($feed_element, $category, $dry_run)) {
+				if ($this->createFeed($feed_element, $category, $dry_run) !== null) {
 					// TODO what if the feed already exists in the database?
 					$nb_feeds++;
 				} else {
@@ -149,8 +149,7 @@ class FreshRSS_Import_Service {
 		try {
 			// Create a Feed object and add it in DB
 			$feed = new FreshRSS_Feed($url);
-			$feed->_categoryId($category->id());
-			$category->addFeed($feed);
+			$feed->_category($category);
 			$feed->_name($name);
 			$feed->_website($website);
 			$feed->_description($description);
@@ -162,7 +161,16 @@ class FreshRSS_Import_Service {
 				case strtolower(FreshRSS_Export_Service::TYPE_XML_XPATH):
 					$feed->_kind(FreshRSS_Feed::KIND_XML_XPATH);
 					break;
-				case strtolower(FreshRSS_Export_Service::TYPE_RSS_ATOM):
+				case strtolower(FreshRSS_Export_Service::TYPE_JSON_DOTNOTATION):
+				case strtolower(FreshRSS_Export_Service::TYPE_JSON_DOTPATH):
+					$feed->_kind(FreshRSS_Feed::KIND_JSON_DOTNOTATION);
+					break;
+				case strtolower(FreshRSS_Export_Service::TYPE_JSONFEED):
+					$feed->_kind(FreshRSS_Feed::KIND_JSONFEED);
+					break;
+				case strtolower(FreshRSS_Export_Service::TYPE_HTML_XPATH_JSON_DOTNOTATION):
+					$feed->_kind(FreshRSS_Feed::KIND_HTML_XPATH_JSON_DOTNOTATION);
+					break;
 				default:
 					$feed->_kind(FreshRSS_Feed::KIND_RSS);
 					break;
@@ -172,14 +180,21 @@ class FreshRSS_Import_Service {
 				$feed->_pathEntries(Minz_Helper::htmlspecialchars_utf8($feed_elt['frss:cssFullContent']));
 			}
 
-			if (isset($feed_elt['frss:cssFullContentFilter'])) {
-				$feed->_attributes('path_entries_filter', $feed_elt['frss:cssFullContentFilter']);
+			if (isset($feed_elt['frss:cssFullContentConditions'])) {
+				$feed->_attribute(
+					'path_entries_conditions',
+					preg_split('/\R/u', $feed_elt['frss:cssFullContentConditions']) ?: []
+				);
+			}
+
+			if (isset($feed_elt['frss:cssContentFilter']) || isset($feed_elt['frss:cssFullContentFilter'])) {
+				$feed->_attribute('path_entries_filter', $feed_elt['frss:cssContentFilter'] ?? $feed_elt['frss:cssFullContentFilter']);
 			}
 
 			if (isset($feed_elt['frss:filtersActionRead'])) {
 				$feed->_filtersAction(
 					'read',
-					preg_split('/[\n\r]+/', $feed_elt['frss:filtersActionRead']) ?: []
+					preg_split('/\R/u', $feed_elt['frss:filtersActionRead']) ?: []
 				);
 			}
 
@@ -214,9 +229,82 @@ class FreshRSS_Import_Service {
 			if (isset($feed_elt['frss:xPathItemUid'])) {
 				$xPathSettings['itemUid'] = $feed_elt['frss:xPathItemUid'];
 			}
-
 			if (!empty($xPathSettings)) {
-				$feed->_attributes('xpath', $xPathSettings);
+				$feed->_attribute('xpath', $xPathSettings);
+			}
+
+			$jsonSettings = [];
+			if (isset($feed_elt['frss:jsonItem'])) {
+				$jsonSettings['item'] = $feed_elt['frss:jsonItem'];
+			}
+			if (isset($feed_elt['frss:jsonItemTitle'])) {
+				$jsonSettings['itemTitle'] = $feed_elt['frss:jsonItemTitle'];
+			}
+			if (isset($feed_elt['frss:jsonItemContent'])) {
+				$jsonSettings['itemContent'] = $feed_elt['frss:jsonItemContent'];
+			}
+			if (isset($feed_elt['frss:jsonItemUri'])) {
+				$jsonSettings['itemUri'] = $feed_elt['frss:jsonItemUri'];
+			}
+			if (isset($feed_elt['frss:jsonItemAuthor'])) {
+				$jsonSettings['itemAuthor'] = $feed_elt['frss:jsonItemAuthor'];
+			}
+			if (isset($feed_elt['frss:jsonItemTimestamp'])) {
+				$jsonSettings['itemTimestamp'] = $feed_elt['frss:jsonItemTimestamp'];
+			}
+			if (isset($feed_elt['frss:jsonItemTimeFormat'])) {
+				$jsonSettings['itemTimeFormat'] = $feed_elt['frss:jsonItemTimeFormat'];
+			}
+			if (isset($feed_elt['frss:jsonItemThumbnail'])) {
+				$jsonSettings['itemThumbnail'] = $feed_elt['frss:jsonItemThumbnail'];
+			}
+			if (isset($feed_elt['frss:jsonItemCategories'])) {
+				$jsonSettings['itemCategories'] = $feed_elt['frss:jsonItemCategories'];
+			}
+			if (isset($feed_elt['frss:jsonItemUid'])) {
+				$jsonSettings['itemUid'] = $feed_elt['frss:jsonItemUid'];
+			}
+			if (!empty($jsonSettings)) {
+				$feed->_attribute('json_dotnotation', $jsonSettings);
+			}
+			$feed->_attribute('xPathToJson', $feed_elt['frss:xPathToJson'] ?? null);
+
+			$curl_params = [];
+			if (isset($feed_elt['frss:CURLOPT_COOKIE'])) {
+				$curl_params[CURLOPT_COOKIE] = $feed_elt['frss:CURLOPT_COOKIE'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_COOKIEFILE'])) {
+				$curl_params[CURLOPT_COOKIEFILE] = $feed_elt['frss:CURLOPT_COOKIEFILE'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_FOLLOWLOCATION'])) {
+				$curl_params[CURLOPT_FOLLOWLOCATION] = (bool)$feed_elt['frss:CURLOPT_FOLLOWLOCATION'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_HTTPHEADER'])) {
+				$curl_params[CURLOPT_HTTPHEADER] = preg_split('/\R/u', $feed_elt['frss:CURLOPT_HTTPHEADER']) ?: [];
+			}
+			if (isset($feed_elt['frss:CURLOPT_MAXREDIRS'])) {
+				$curl_params[CURLOPT_MAXREDIRS] = (int)$feed_elt['frss:CURLOPT_MAXREDIRS'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_POST'])) {
+				$curl_params[CURLOPT_POST] = (bool)$feed_elt['frss:CURLOPT_POST'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_POSTFIELDS'])) {
+				$curl_params[CURLOPT_POSTFIELDS] = $feed_elt['frss:CURLOPT_POSTFIELDS'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_PROXY'])) {
+				$curl_params[CURLOPT_PROXY] = $feed_elt['frss:CURLOPT_PROXY'];
+			}
+			if (isset($feed_elt['frss:CURLOPT_PROXYTYPE'])) {
+				$curl_params[CURLOPT_PROXYTYPE] = (int)$feed_elt['frss:CURLOPT_PROXYTYPE'];
+				if ($curl_params[CURLOPT_PROXYTYPE] === 3) {	// Legacy for NONE
+					$curl_params[CURLOPT_PROXYTYPE] = -1;
+				}
+			}
+			if (isset($feed_elt['frss:CURLOPT_USERAGENT'])) {
+				$curl_params[CURLOPT_USERAGENT] = $feed_elt['frss:CURLOPT_USERAGENT'];
+			}
+			if (!empty($curl_params)) {
+				$feed->_attribute('curl_params', $curl_params);
 			}
 
 			// Call the extension hook
@@ -227,13 +315,14 @@ class FreshRSS_Import_Service {
 				return $feed;
 			}
 
-			if ($feed != null) {
+			if ($feed !== null) {
 				// addFeedObject checks if feed is already in DB
 				$id = $this->feedDAO->addFeedObject($feed);
 				if ($id == false) {
 					$this->lastStatus = false;
 				} else {
 					$feed->_id($id);
+					$category->addFeed($feed);
 					return $feed;
 				}
 			}
@@ -242,7 +331,7 @@ class FreshRSS_Import_Service {
 			$this->lastStatus = false;
 		}
 
-		$clean_url = SimplePie_Misc::url_remove_credentials($url);
+		$clean_url = \SimplePie\Misc::url_remove_credentials($url);
 		self::log("Cannot create {$clean_url} feed in category {$category->name()}");
 		return null;
 	}
@@ -263,7 +352,7 @@ class FreshRSS_Import_Service {
 			$opml_url = checkUrl($category_element['frss:opmlUrl']);
 			if ($opml_url != '') {
 				$category->_kind(FreshRSS_Category::KIND_DYNAMIC_OPML);
-				$category->_attributes('opml_url', $opml_url);
+				$category->_attribute('opml_url', $opml_url);
 			}
 		}
 
@@ -288,11 +377,9 @@ class FreshRSS_Import_Service {
 	 * This method is applied to a list of outlines. It merges the different
 	 * list of feeds from several outlines into one array.
 	 *
-	 * @param array<mixed> $outlines
-	 *     The outlines from which to extract the outlines.
-	 * @param string $parent_category_name
-	 *     The name of the parent category of the current outlines.
-	 * @return array{0:array<mixed>,1:array<mixed>}
+	 * @param array<array<mixed>> $outlines The outlines from which to extract the outlines.
+	 * @param string $parent_category_name The name of the parent category of the current outlines.
+	 * @return array{0:array<string,array<string,string>>,1:array<string,array<array<string,string>>>}
 	 */
 	private function loadFromOutlines(array $outlines, string $parent_category_name): array {
 		$categories_elements = [];
@@ -331,18 +418,16 @@ class FreshRSS_Import_Service {
 	 * exists), it will add the outline to an array accessible by its category
 	 * name.
 	 *
-	 * @param array<mixed> $outline
-	 *     The outline from which to extract the categories and feeds outlines.
-	 * @param string $parent_category_name
-	 *     The name of the parent category of the current outline.
+	 * @param array<mixed> $outline The outline from which to extract the categories and feeds outlines.
+	 * @param string $parent_category_name The name of the parent category of the current outline.
 	 *
-	 * @return array{0:array<string,mixed>,1:array<string,mixed>}
+	 * @return array{0:array<string,array<string,string>>,1:array<array<string,array<string,string>>>}
 	 */
-	private function loadFromOutline($outline, $parent_category_name): array {
+	private function loadFromOutline(array $outline, string $parent_category_name): array {
 		$categories_elements = [];
 		$categories_to_feeds = [];
 
-		if ($parent_category_name === '' && isset($outline['category'])) {
+		if ($parent_category_name === '' && isset($outline['category']) && is_array($outline['category'])) {
 			// The outline has no parent category, but its OPML category
 			// attribute is set, so we use it as the category name.
 			// lib_opml parses this attribute as an array of strings, so we
@@ -355,9 +440,9 @@ class FreshRSS_Import_Service {
 
 		if (isset($outline['@outlines'])) {
 			// The outline has children, it’s probably a category
-			if (!empty($outline['text'])) {
+			if (!empty($outline['text']) && is_string($outline['text'])) {
 				$category_name = $outline['text'];
-			} elseif (!empty($outline['title'])) {
+			} elseif (!empty($outline['title']) && is_string($outline['title'])) {
 				$category_name = $outline['title'];
 			} else {
 				$category_name = $parent_category_name;
